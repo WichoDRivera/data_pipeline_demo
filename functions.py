@@ -14,7 +14,8 @@ def getVideoRecords(response: requests.models.Response) -> list:
     """
 
     video_record_list = []
-    
+    print("API response:", response.text)
+
     for raw_item in json.loads(response.text)['items']:
     
         # only execute for youtube videos
