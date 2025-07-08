@@ -1,0 +1,39 @@
+name: data-pipeline-workflow # Name of the pipeline
+
+on: # Trigger, when will it run
+  push: # Anytime code is push to repo
+  workflow_dispatch: # Manually trigger, if set, it will create a button to run it on GitHub Actions
+  schedule: # Schedule it as a cronjob
+  - cron: "35 0 * * *"
+
+jobs: # Single tasks
+  run-data-pipeline:
+    runs-on: ubuntu-latest # system run on
+    steps:
+      - name: Checkout repo content
+        uses: actions/checkout@v4 # Pull code from repo
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN}}  # Access to repo
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip' # To avoid install every time, store in cache
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run data pipeline
+        env: 
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+        run: python data_pipeline.py
+      - name: Check for changes
+        id: git-check
+        run: | #Multi line command
+          git config user.name 'github-actions'
+          git config user.email 'github-actions@github.com'
+          git add .
+          git diff --staged --quiet || echo "changes=true" >> $GITHUB_ENV  
+      - name: Commit and push if changes
+        if: env.changes == 'true' # if changes made push new data to repo
+        run: |
+          git commit -m "updated video index"
+          git push

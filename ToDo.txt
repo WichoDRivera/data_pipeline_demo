@@ -1,0 +1,10 @@
+1. Create ETL Python Script
+
+2. Create Github Repo
+
+3. Create Workflow .YML file
+
+4. Add Repo Secretsz
+
+5. Push and Commit
+
